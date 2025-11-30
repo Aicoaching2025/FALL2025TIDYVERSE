@@ -1,0 +1,247 @@
+---
+title: "TidyVerse CREATE Vignette"
+author: "Jacob Shapiro"
+date: "`r Sys.Date()`"
+output: 
+  html_document :
+  df_print: paged
+---
+<style type="text/css">
+.main-container {
+  max-width: 100% !important;
+  margin: auto;
+}
+options("width"=300)
+</style>
+<!-- Note need above for all columns to appear together -->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r , include = FALSE}
+library(tidyverse)
+```
+
+## Stringr Package within TidyVerse
+
+The "stringr" (pronounce "stringer") package is a package within the TidyVerse that helps with string manipulation. For information on strings, you can refer to chapter 14 of Hadley's R for Data Science https://r4ds.hadley.nz/strings. stringr is built on top of stringi, which uses the ICU C library to provide fast, correct implementations of common string manipulations.
+
+## Installation
+
+You can install tidyverse, or just the stringr package.
+
+```{r, results="hide", message=FALSE}
+#install.packages("tidyverse")
+library(tidyverse)
+```
+
+
+## Usage
+
+To illustrate usage of stringr functions, let's load a dataset. The dataset below is a Kaggle dataset that has fast food information: https://www.kaggle.com/datasets/tan5577/nutritonal-fast-food-dataset
+
+```{r, message=FALSE}
+food <- read_csv("https://raw.githubusercontent.com/jacshap/Data607/refs/heads/main/Tidyverse_FastFoodNutritionMenuV2.csv")
+
+head(food)
+```
+
+Stringr functions start with "str" and work with vectors of strings.
+
+### str_length
+
+We can see how long the first Item is
+
+```{r}
+str_length(food[1,2])
+```
+
+We get a length of 9, which matches Hamburger above.
+
+### str_count
+
+We can see the amount of vowels in the first 6 items
+
+```{r}
+food6 <- head(food, 6)
+
+str_count(food6$Item, "[aeiou]")
+```
+
+It may also be interesting to see how many of the 1148 observations in the data set are double or triple items.
+
+```{r}
+str_count(food$Item, "Double") %>% sum()
+str_count(food$Item, "Triple") %>% sum()
+```
+18 and 15, respectively - 33 total items of the 1148.
+
+### str_replace
+
+We can use str_replace to replace parts of a string. Let's replace McDonald with The Clown.
+
+```{r}
+food6$Company
+
+food6$Company %>% str_replace("McDonald", "The Clown")
+```
+
+### str_split
+
+We can split strings based on patterns as well. Let's split McDonald's on Mc into Donald's.
+
+```{r}
+food6$Company %>% str_split("Mc")
+```
+
+We can use regular expressions (regex) to split on capital letters. The regex "(?=[A-Z])" splits the string before an uppercase letter and keeps the character as the first part of the next string.
+
+```{r}
+str_split(food6$Company, "(?=[A-Z])", simplify = TRUE)
+
+```
+
+## Summary
+
+In this vignette we explored the stringr package and some functions that can be utilized on a sample fast food data set.
+
+
+
+
+## Extended Code -- Wendy Romero
+
+We can continue to explore the functions offered by the `stringr` package using the **fast food dataset** from Jacob's earlier example.
+
+### Stringr's str_unique Function
+
+
+Let's use the `str_unique()` function from `stringr` to find the number of unique fast food restaurants  in our dataset and then the names of these unique fast food restaurants.
+
+```{r num unique fast food restaurants}
+unique_companies <- food$Company %>% str_unique()
+
+num_companies<- length(unique_companies)
+```
+
+Great, now we know that there are `r num_companies` unique fast food restaurants in our dataset, let's print their names.
+
+```{r print fast food restaurants }
+print(unique_companies)
+```
+
+### Stringr's str_detect Function
+
+Now, what if we were curious about how many products of a certain type were sold at the fast food restaurants in our dataset?
+
+Well, as we can use the `str_detect` function! 
+
+Let's first find how many products sold at all the fast food restaurants in our dataset have the name burger in them.
+
+```{r burgers}
+burger_items <- food %>% 
+  filter(str_detect(food$Item, "burger"))
+
+num_burger <- length(burger_items$Item)
+```
+
+
+It seems there are only `r num_burger` products in our dataset with burger in the name, let's take a look at the full name of each of the `r num_burger` products and which restaurant offers the product on their menu.
+
+
+```{r print burger items}
+print(burger_items %>% 
+        select(Company,Item))
+```
+
+**Let's now find how many chicken type products are sold at all the fast food restaurants in our dataset**
+
+```{r chicken}
+chicken_items <- food %>% 
+  filter(str_detect(food$Item, "chicken"))
+
+num_chicken <- length(chicken_items$Item)
+
+```
+
+It seems there are only `r num_chicken` products in our dataset with burger in the name. Let's take a look at the full name of each of the `r num_chicken` products and which restaurants offers the products on their menu.
+
+``` {r print chicken}
+print(chicken_items %>% 
+        select(Company,Item))
+
+``` 
+
+
+Why did we see that there are only three products offered by restaurants in our dataset that have "chicken" in the name? Well, it's because str_detect is by default case-sensitive, to make it case-insensitive we must combine it with a regex function as done in the next section.
+
+
+```{r chicken 2}
+#str_detect + regex
+
+chicken_items2 <- food %>% 
+  filter(str_detect(food$Item, regex("chicken", ignore_case = TRUE)))
+
+#number of chicken products in data, case-insensitive
+
+n_chicken <- length(chicken_items2$Item)
+```
+
+
+Now that we have made str_detect case-insensitive by using with a regex pattern, we see that there are `r n_chicken` products offered by restaurants with the word chicken or Chicken in the name. Let us take a look at the first 10 of these products and the companies that offer them.
+
+
+```{r chicken items 2 }
+#first 10 chicken products in our data set
+
+chicken_items2 %>% 
+    select(Company,Item) %>%
+  head(10)
+
+```
+
+
+### Relationship Between Protein and Calories for Chicken Products 
+
+Now that we have created a data frame that holds all the items with *chicken* or *Chicken* in the name, from each of the fast food restaurants in our dataset, let's explore the question: Does there seem to be a relationship between the protein content and the calories of chicken products offered across the fast food restaurants in our dataset?
+
+
+Before we can plot and explore the relationship between protein and calories for chicken products in our dataset, let's first tidy our data. We need to rename the `Protein\n(g)` column to an easier to read name so as to give ggplot no issues. We must also convert the `Protein\n(g)` and `Calories` columns from character data types to numeric data types. 
+
+```{r clean chicken prod df}
+
+#renaming protein column
+chicken_items2 <- chicken_items2 %>%
+  rename(Protein_g = `Protein\n(g)`)
+
+
+#converting protein and calories columns to numeric 
+
+chicken_items2$Calories <-as.numeric(chicken_items2$Calories)
+
+chicken_items2$Protein_g <-as.numeric(chicken_items2$Protein_g)
+
+```
+
+
+
+Now, we can plot and explore the relationship between protein and calories for chicken products in our dataset.
+
+```{r chicken product plot}
+
+ggplot(chicken_items2, aes(x = Protein_g, y = Calories)) +
+  geom_point(col="steelblue", na.rm = TRUE)+
+  geom_smooth(method = lm, color = "darkred", na.rm = TRUE) +
+  labs(
+    title = "Protein vs Calories in Chicken Products",
+    subtitle = "Offered by Mcdonald's, Wendy's, Burger King, \n KFC, Taco Bell and Pizza Hut",
+    x = "Protein (in grams)",
+    y = "Calories"
+  )+
+  theme_minimal()
+
+```
+
+
+Based on our plot of protein vs calories for chicken products in our dataset, it does seem there is a relationship between protein and calories, more specifically it seems that as the protein content in a chicken product offered by a fast food restaurant increases so does the caloric content.
+
