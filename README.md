@@ -75,7 +75,7 @@ Jacob's vignette
 * Kaggle Dataset: https://www.kaggle.com/datasets/tan5577/nutritonal-fast-food-dataset
 
 # James C.
-
+* CREATE Assignment
 * Initial Description and Link:
 Video game sales from 
 
@@ -86,6 +86,9 @@ Using primarily PS4 and Xbox One Game Sales
 * Revision/Addition Description and Link:
 
 Functions used: getURL(), mutate(), arrange(), ggplot(), group_by(), summarise()
+
+* EXTEND Assignment
+* Extending Pascal Tafo's vignette by creating new data set from source, and performing additional analysis.
 
 # Joao D.
 
