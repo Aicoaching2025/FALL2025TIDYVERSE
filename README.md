@@ -113,6 +113,13 @@ N/A
 
 # Kevin M.
 
+* **Initial Description and Link:**  
+Added a simple Tidyverse vignette demonstrating data wrangling with `dplyr` using the built-in `mpg` dataset.  
+RPubs Link: https://rpubs.com/klkid969/week9_tidyverse
+
+* **Revision/Addition Description and Link:**  
+N/A 
+
 * Initial Description and Link:
 Added a simple Tidyverse vignette demonstrating data wrangling with `dplyr` using the built-in `mpg` dataset.  
 RPubs Link: https://rpubs.com/klkid969/week9_tidyverse
